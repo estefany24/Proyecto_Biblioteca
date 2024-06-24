@@ -20,6 +20,7 @@ class BibliotecaBibli:
 
         # Crear la barra de menú
         self.crear_menu()
+        self.mostrar_prestamos()
 
     def crear_menu(self):
         menubar = Menu(self.master)
@@ -64,6 +65,7 @@ class BibliotecaBibli:
         self.limpiar_pantalla()
         self.crear_barra_busqueda_libro()
         self.crear_area_resultado_libro()
+        self.mostrar_datos_libros()
 
     def mostrar_todos_libros(self):
         self.limpiar_pantalla()
@@ -139,6 +141,73 @@ class BibliotecaBibli:
         search_button = ttk.Button(search_frame, text="Buscar", command=self.realizar_busqueda_libro)
         search_button.pack(side=tk.LEFT, padx=5)
 
+
+        #Agregamos un nuevo boton para agregar un libro
+        boton_agregar= ttk.Button(search_frame,text="Agregar",command=self.agregar_libro)
+        boton_agregar.pack(side=tk.LEFT,padx=5)
+
+    def agregar_libro(self):
+
+        libro_window = tk.Toplevel(self.master)
+        libro_window.title("Agregar Libro")
+
+        tk.Label(libro_window, text="Título").grid(row=0, column=0)
+        tk.Label(libro_window, text="Autor").grid(row=1, column=0)
+        tk.Label(libro_window,text="Edicion").grid(row=2,column=0)
+        tk.Label(libro_window,text="Descripcion").grid(row=3,column=0)
+        tk.Label(libro_window, text="Categoría").grid(row=4, column=0)
+        tk.Label(libro_window,text="Año").grid(row=5,column=0)
+        tk.Label(libro_window,text="Numero de paginas").grid(row=6,column=0)
+
+
+        titulo_entry = tk.Entry(libro_window)
+        autores = Autores.obtener_autores()
+        edicion_entry=tk.Entry(libro_window)
+        descripcion_entry=tk.Entry(libro_window)
+        catego= categorias.obtener_categorias()
+        ano_entry=tk.Entry(libro_window)
+        numpaginas_entry=tk.Entry(libro_window)
+
+        autores_var = tk.StringVar(libro_window)
+        categorias_var = tk.StringVar(libro_window)
+
+        autores_menu = tk.OptionMenu(libro_window, autores_var, *[f"{autor[0]}" for autor in autores])
+        categorias_menu = tk.OptionMenu(libro_window, categorias_var, *[f"{categori[0]}" for categori in catego])
+
+        titulo_entry.grid(row=0, column=1)
+        autores_menu.grid(row=1, column=1)
+        edicion_entry.grid(row=2,column=1)
+        descripcion_entry.grid(row=3,column=1)
+        categorias_menu.grid(row=4, column=1)
+        ano_entry.grid(row=5,column=1)
+        numpaginas_entry.grid(row=6,column=1)
+
+        save_button = ttk.Button(libro_window, text="Guardar", command=lambda: self.guardar_libro(titulo_entry, autores_var, edicion_entry, descripcion_entry, categorias_var, ano_entry, numpaginas_entry))
+        save_button.grid(row=7, column=0, columnspan=2, pady=10)
+
+    def guardar_libro(self, titulo_entry, autores_var, edicion_entry, descripcion_entry, categorias_var, ano_entry, numpaginas_entry):
+        # Obtener los valores de los campos de entrada
+        titulo = titulo_entry.get()
+        autor = autores_var.get()
+        edicion = edicion_entry.get()
+        descripcion = descripcion_entry.get()
+        categoria = categorias_var.get()
+        ano = ano_entry.get()
+        numpaginas = numpaginas_entry.get()
+
+        # Verificar que todos los campos estén llenos
+        if not (titulo and autor and edicion and descripcion and categoria and ano and numpaginas):
+            messagebox.showwarning("Advertencia", "Todos los campos son obligatorios")
+            return
+
+        # Guardar el libro en la base de datos
+        resultado = libros.insertar_libro(titulo, autor, edicion, descripcion, categoria, ano, numpaginas)
+        
+        if resultado:
+            messagebox.showinfo("Éxito", "Libro agregado correctamente")
+        else:
+            messagebox.showerror("Error", "No se pudo agregar el libro")
+
     def crear_area_resultado_libro(self):
         self.resultados_frame = tk.Frame(self.master)
         self.resultados_frame.pack(pady=10)
@@ -205,8 +274,8 @@ class BibliotecaBibli:
 
     def mostrar_datos_libros(self):
         resultados = libros.obtener_libros()
-        for row in self.tree.get_children():
-            self.tree.delete(row)
+        #for row in self.tree.get_children():
+            #self.tree.delete(row)
 
         for resultado in resultados:
             self.tree.insert('', tk.END, values=resultado)

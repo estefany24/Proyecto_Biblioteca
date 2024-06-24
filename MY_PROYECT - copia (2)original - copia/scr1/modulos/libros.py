@@ -2,7 +2,7 @@ import sqlite3
 from tkinter import messagebox
 
 # Función para insertar un nuevo libro en la base de datos
-def insertar_libro(titulo, edicion, descripcion, categoria_idcategoria, año, nunpaginas):
+def insertar_libro(titulo, Autores,edicion, descripcion, categoria_idcategoria, año, nunpaginas):
     try:
         # Conexión a la base de datos
         conn = sqlite3.connect('ABIBLIOTECA.db')
@@ -10,9 +10,9 @@ def insertar_libro(titulo, edicion, descripcion, categoria_idcategoria, año, nu
 
         # Insertar el libro
         cursor.execute('''
-        INSERT INTO Libros (titulo, edicion, descripcion, categoria_idcategoria, año, nunpaginas)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', (titulo, edicion, descripcion, categoria_idcategoria, año, nunpaginas))
+        INSERT INTO Libros (titulo,Autores, edicion, descripcion, categoria_idcategoria, año, nunpaginas)
+        VALUES (?, ?, ?, ?, ?, ?,?)
+        ''', (titulo, Autores, edicion, descripcion, categoria_idcategoria, año, nunpaginas))
 
         # Confirmar la transacción
         conn.commit()
