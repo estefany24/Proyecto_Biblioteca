@@ -102,4 +102,16 @@ def obtener_categoria_por_id(id_categoria):
         return categoria
     except sqlite3.Error as e:
         messagebox.showerror("Error", f"Error al obtener la categoría: {e}")
+<<<<<<< HEAD
         return None
+=======
+        return None
+    
+def buscar_categoria_por_nombre(nombre):
+    conn = sqlite3.connect('ABIBLIOTECA.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM categorias WHERE nombre_categoria LIKE ?", ('%' + nombre + '%',))
+    categorias = cursor.fetchall()
+    conn.close()
+    return categorias
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102

@@ -1,42 +1,32 @@
 import tkinter as tk
 import sqlite3
-import sys
-import os
-from tkinter import filedialog, messagebox
-from PIL import Image, ImageTk
-from fpdf import FPDF
-from tkinter import messagebox ,ttk
+from tkinter import messagebox
+from tkinter import ttk
 from scr1.modulos import categorias
-from scr1.modulos import Autores
-from scr1.modulos import libros
-from scr1.modulos import Libros_Autores
-from scr1.modulos import prestamos
-from scr1.modulos import Roles  # Importar el módulo de roles
-from scr1.modulos import usuarios 
-from scr1.modulos.usuarios import verificar_usuario
-from scr1.modulos.carnetuniversitario import CarnetUniversitariosss
-
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),)))
 
 class BibliotecaApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Biblioteca App")
-        self.root.geometry("800x600") 
+        self.root.geometry("800x600")
 
         # Crear el menú principal
         self.menu_principal = tk.Menu(root)
         root.config(menu=self.menu_principal)
+<<<<<<< HEAD
         
   
 
 
+=======
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
 
         # Opción del menú Categorías
         self.menu_categorias = tk.Menu(self.menu_principal, tearoff=0)
         self.menu_principal.add_cascade(label="Categorías", menu=self.menu_categorias)
         self.menu_categorias.add_command(label="Agregar Categoría", command=self.abrir_ventana_categoria)
         self.menu_categorias.add_command(label="Ver Categorías", command=self.ver_categorias)
+<<<<<<< HEAD
         #self.menu_categorias.add_command(label="Eliminar Categorías", command=self.abrir_ventana_eliminar_categoria)
         #self.menu_categorias.add_command(label="actualizar Categorías", command=self.abrir_ventana_actualizar_categoria)
         #self.menu_categorias.add_command(label="actualizar actegoria",command=self.actualizar_lista_categorias)
@@ -107,41 +97,77 @@ class BibliotecaApp:
          
 
     
+=======
 
+        # Crear Frame para Treeview y botones
+        self.frame = tk.Frame(self.root)
+        self.frame.grid(row=1, column=0, padx=10, pady=10, sticky='nsew')
 
+        # Frame superior para buscar y agregar
+        self.frame_superior = tk.Frame(self.frame)
+        self.frame_superior.grid(row=0, column=0, columnspan=3, pady=10, sticky='ew')
+
+        # Campo de entrada para búsqueda con ancho mayor
+        self.buscar_entry = tk.Entry(self.frame_superior, width=80)  # Establece el ancho deseado aquí
+        self.buscar_entry.grid(row=0, column=0, padx=10)
+
+        # Botón de búsqueda
+        self.btn_buscar = tk.Button(self.frame_superior, text="Buscar", command=self.buscar_categoria)
+        self.btn_buscar.grid(row=0, column=1, padx=10)
+
+        # Botón de agregar
+        self.btn_agregar_categoria = tk.Button(self.frame_superior, text="Agregar", command=self.abrir_ventana_categoria)
+        self.btn_agregar_categoria.grid(row=0, column=2, padx=10)
+        
+        # Crear Treeview
+        self.tree = ttk.Treeview(self.frame, columns=('ID', 'Categoría', 'Ubicación'), show='headings')
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Categoría', text='Categoría')
+        self.tree.heading('Ubicación', text='Ubicación')
+        self.tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky='nsew')
+
+        # Scrollbar para Treeview
+        self.tree_scroll = ttk.Scrollbar(self.frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.tree_scroll.set)
+        self.tree_scroll.grid(row=1, column=3, sticky='ns')
+
+        # Crear menú contextual
+        self.menu_contextual = tk.Menu(self.root, tearoff=0)
+        self.menu_contextual.add_command(label="Eliminar", command=self.eliminar_categoria_contextual)
+        self.menu_contextual.add_command(label="Actualizar", command=self.abrir_ventana_actualizar_categoria_contextual)
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
+
+        # Asociar evento de clic derecho al Treeview
+        self.tree.bind("<Button-3>", self.mostrar_menu_contextual)
+
+        self.selected_item = None  # Para guardar el elemento seleccionado en el menú contextual
+        self.ver_categorias()
 
     def abrir_ventana_categoria(self):
-        self.ocultar_widgets()
-        self.label_nombre_categoria.grid(row=0, column=0, padx=10, pady=10)
-        self.nombre_categoria_entry.grid(row=0, column=1, padx=10, pady=10)
-        self.label_ubicacion.grid(row=1, column=0, padx=10, pady=10)
-        self.ubicacion_entry.grid(row=1, column=1, padx=10, pady=10)
-        self.btn_agregar_categoria.grid(row=2, columnspan=2, padx=10, pady=10)
+        # Crear una nueva ventana para agregar categoría
+        self.ventana_agregar_categoria = tk.Toplevel(self.root)
+        self.ventana_agregar_categoria.title("Agregar Categoría")
+
+        tk.Label(self.ventana_agregar_categoria, text="Nombre de la categoría:").pack(pady=5)
+        self.nombre_categoria_entry = tk.Entry(self.ventana_agregar_categoria)
+        self.nombre_categoria_entry.pack(pady=5)
+
+        tk.Label(self.ventana_agregar_categoria, text="Ubicación de la categoría:").pack(pady=5)
+        self.ubicacion_entry = tk.Entry(self.ventana_agregar_categoria)
+        self.ubicacion_entry.pack(pady=5)
+
+        tk.Button(self.ventana_agregar_categoria, text="Agregar", command=self.agregar_categoria).pack(pady=10)
 
     def agregar_categoria(self):
         nombre = self.nombre_categoria_entry.get()
         ubicacion = self.ubicacion_entry.get()
 
         if nombre and ubicacion:
-            if categorias.insertar_categoria(nombre, ubicacion):
-                messagebox.showinfo("Éxito", "Categoría agregada correctamente.")
-                self.nombre_categoria_entry.delete(0, tk.END)
-                self.ubicacion_entry.delete(0, tk.END)
-            else:
-                messagebox.showerror("Error", "No se pudo agregar la categoría.")
+            categorias.insertar_categoria(nombre, ubicacion)
+            self.ventana_agregar_categoria.destroy()
+            self.ver_categorias()
         else:
             messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
-    def crear_text_area(self):
-        # Crear el área de texto si aún no existe
-        if not self.text_area:
-            self.text_area = tk.Text(self.root, height=50, width=100)
-            self.text_area.grid(row=10, columnspan=2, padx=10, pady=10)
-
-    def destruir_text_area(self):
-        # Destruir el área de texto si existe
-        if self.text_area:
-            self.text_area.destroy()
-            self.text_area = None  # Establecer a None para indicar que no existe
 
     def on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -151,6 +177,7 @@ class BibliotecaApp:
 
     def ver_categorias(self):
         try:
+<<<<<<< HEAD
             # Crear el Treeview si aún no existe
             if not hasattr(self, 'tree'):
                 self.tree = ttk.Treeview(self.root, columns=('ID', 'Categoría', 'Ubicación', 'Acciones'), show='headings')
@@ -163,6 +190,11 @@ class BibliotecaApp:
             # Limpiar las filas existentes en el Treeview
             self.tree.delete(*self.tree.get_children())
 
+=======
+            # Limpiar las filas existentes en el Treeview
+            self.tree.delete(*self.tree.get_children())
+
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
             # Obtener las categorías desde la base de datos
             categorias_data = categorias.obtener_categorias()
 
@@ -171,6 +203,7 @@ class BibliotecaApp:
                 id_categoria = categoria[0]
                 nombre_categoria = categoria[1]
                 ubicacion = categoria[2]
+<<<<<<< HEAD
                 self.tree.insert('', 'end', values=(id_categoria, nombre_categoria, ubicacion, ''))
 
                 # Añadir botones de acción a cada fila
@@ -182,10 +215,14 @@ class BibliotecaApp:
             # Ajustar las columnas al contenido
             for col in ('ID', 'Categoría', 'Ubicación', 'Acciones'):
                 self.tree.column(col, width=tk.font.Font().measure(col))
+=======
+                self.tree.insert('', 'end', values=(id_categoria, nombre_categoria, ubicacion))
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
 
         except sqlite3.Error as e:
             messagebox.showerror("Error", f"Error al obtener las categorías: {e}")
 
+<<<<<<< HEAD
     def abrir_ventana_actualizar_categoria(self, id_categoria):
         # Crear una nueva ventana
         self.ventana_actualizar_categoria = tk.Toplevel(self.root)
@@ -205,6 +242,44 @@ class BibliotecaApp:
         ubicacion_categoria_entry.insert(0, categoria[2])  # Mostrar la ubicación actual de la categoría
         ubicacion_categoria_entry.pack()
 
+=======
+    def mostrar_menu_contextual(self, event):
+        # Obtener el elemento sobre el que se hizo clic
+        item = self.tree.identify_row(event.y)
+        if item:
+            self.selected_item = item
+            self.menu_contextual.post(event.x_root, event.y_root)
+
+    def eliminar_categoria_contextual(self):
+        if self.selected_item:
+            id_categoria = self.tree.item(self.selected_item)['values'][0]
+            self.eliminar_categoria(id_categoria)
+
+    def abrir_ventana_actualizar_categoria_contextual(self):
+        if self.selected_item:
+            id_categoria = self.tree.item(self.selected_item)['values'][0]
+            self.abrir_ventana_actualizar_categoria(id_categoria)
+
+    def abrir_ventana_actualizar_categoria(self, id_categoria):
+        # Crear una nueva ventana
+        self.ventana_actualizar_categoria = tk.Toplevel(self.root)
+        self.ventana_actualizar_categoria.title("Actualizar Categoría")
+
+        # Obtener la categoría a actualizar
+        categoria = categorias.obtener_categoria_por_id(id_categoria)
+
+        # Crear etiquetas y campos de entrada para la nueva ventana
+        tk.Label(self.ventana_actualizar_categoria, text="Nuevo nombre de la categoría:").pack()
+        nombre_categoria_entry = tk.Entry(self.ventana_actualizar_categoria)
+        nombre_categoria_entry.insert(0, categoria[1])  # Mostrar el nombre actual de la categoría
+        nombre_categoria_entry.pack()
+
+        tk.Label(self.ventana_actualizar_categoria, text="Nueva ubicación de la categoría:").pack()
+        ubicacion_categoria_entry = tk.Entry(self.ventana_actualizar_categoria)
+        ubicacion_categoria_entry.insert(0, categoria[2])  # Mostrar la ubicación actual de la categoría
+        ubicacion_categoria_entry.pack()
+
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
         # Función para actualizar la categoría
         def actualizar():
             nuevo_nombre = nombre_categoria_entry.get()
@@ -231,6 +306,7 @@ class BibliotecaApp:
             else:
                 messagebox.showerror("Error", "No se pudo eliminar la categoría.")
 
+<<<<<<< HEAD
 
 
 
@@ -456,19 +532,22 @@ class BibliotecaApp:
                       self.id_autor_entry, self.id_autor_actualizar_entry, self.nombres_autor_actualizar_entry,
                       self.apellidos_actualizar_entry, self.dni_actualizar_entry, self.nacionalidad_actualizar_entry):
             entry.delete(0, tk.END)
+=======
+    def buscar_categoria(self):
+        query = self.buscar_entry.get()
+        if query:
+            categorias_data = categorias.buscar_categoria_por_nombre(query)
+            self.tree.delete(*self.tree.get_children())
+            for categoria in categorias_data:
+                id_categoria = categoria[0]
+                nombre_categoria = categoria[1]
+                ubicacion = categoria[2]
+                self.tree.insert('', 'end', values=(id_categoria, nombre_categoria, ubicacion))
+        else:
+            self.ver_categorias()
+
+>>>>>>> 5caf6712a4be06cd8dce0b697cd6b8dff6901102
 if __name__ == "__main__":
     root = tk.Tk()
     app = BibliotecaApp(root)
     root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
