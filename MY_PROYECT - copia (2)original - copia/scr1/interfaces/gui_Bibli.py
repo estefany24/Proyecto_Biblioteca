@@ -42,10 +42,10 @@ class BibliotecaBibli:
         categorias_menu.add_command(label="Ver", command=self.mostrar_categorias)
         menubar.add_cascade(label="Categorías", menu=categorias_menu)
 
-        # Menu Autores
+        # Menú Autores
         autores_menu = Menu(menubar, tearoff=0)
         autores_menu.add_command(label="Ver Autores", command=self.mostrar_autores)
-        autores_menu.add_command(label="Ver", command=self.mostrar_autores)
+        autores_menu.add_command(label="Ver todo", command=self.mostrar_todos_autores)
         menubar.add_cascade(label="Autores", menu=autores_menu)
 
         self.master.config(menu=menubar)
@@ -58,6 +58,7 @@ class BibliotecaBibli:
     def mostrar_todos_prestamos(self):
         self.limpiar_pantalla()
         self.crear_area_resultado_prestamo()
+        self.mostrar_datos_prestamos()
 
     def mostrar_libros(self):
         self.limpiar_pantalla()
@@ -67,16 +68,12 @@ class BibliotecaBibli:
     def mostrar_todos_libros(self):
         self.limpiar_pantalla()
         self.crear_area_resultado_libro()
+        self.mostrar_datos_libros()
 
     def mostrar_todas_categorias(self):
         self.limpiar_pantalla()
         self.crear_area_categorias()
-        categorias_text = ''
-        for categoria in categorias.obtener_categorias():
-            categorias_text += f"ID: {categoria[0]}, Categoria: {categoria[1]}, Ubicacion: {categoria[2]}\n"
-
-        self.categorias_text.delete('1.0', tk.END)
-        self.categorias_text.insert(tk.END, categorias_text)
+        self.mostrar_datos_categorias()
 
     def mostrar_categorias(self):
         self.limpiar_pantalla()
@@ -93,12 +90,14 @@ class BibliotecaBibli:
 
     def mostrar_autores(self):
         self.limpiar_pantalla()
-        autores_text = ''
-        for categoria in Autores.obtener_autores():
-            autores_text += f"ID: {categoria[0]}, Categoria: {categoria[1]}, Ubicacion: {categoria[2]}\n"
+        self.crear_barra_busqueda_autor()
+        self.crear_area_resultado_autor()
+        self.mostrar_datos_autores()
 
-        self.autores_text.delete('1.0', tk.END)
-        self.categorias_text.insert(tk.END, autores_text)
+    def mostrar_todos_autores(self):
+        self.limpiar_pantalla()
+        self.crear_area_resultado_autor()
+        self.mostrar_datos_autores()
 
     def limpiar_pantalla(self):
         for widget in self.master.winfo_children():
@@ -120,12 +119,12 @@ class BibliotecaBibli:
         self.resultados_frame = tk.Frame(self.master)
         self.resultados_frame.pack(pady=10)
 
-        self.tree = ttk.Treeview(self.resultados_frame, columns=('ID', 'Titulo', 'Autor', 'Genero', 'Año'), show='headings')
+        self.tree = ttk.Treeview(self.resultados_frame, columns=('ID', 'Usuario', 'Libro', 'Fecha Prestamo', 'Fecha Devolucion'), show='headings')
         self.tree.heading('ID', text='ID')
-        self.tree.heading('Titulo', text='Titulo')
-        self.tree.heading('Autor', text='Autor')
-        self.tree.heading('Genero', text='Genero')
-        self.tree.heading('Año', text='Año')
+        self.tree.heading('Usuario', text='Usuario')
+        self.tree.heading('Libro', text='Libro')
+        self.tree.heading('Fecha Prestamo', text='Fecha Prestamo')
+        self.tree.heading('Fecha Devolucion', text='Fecha Devolucion')
         self.tree.pack(fill=tk.BOTH, expand=True)
 
     def crear_barra_busqueda_libro(self):
@@ -152,6 +151,28 @@ class BibliotecaBibli:
         self.tree.heading('Año', text='Año')
         self.tree.pack(fill=tk.BOTH, expand=True)
 
+    def crear_barra_busqueda_autor(self):
+        search_frame = tk.Frame(self.master)
+        search_frame.pack(pady=10)
+
+        tk.Label(search_frame, text="Buscar:").pack(side=tk.LEFT, padx=5)
+
+        self.search_entry = tk.Entry(search_frame, width=40)
+        self.search_entry.pack(side=tk.LEFT, padx=5)
+
+        search_button = ttk.Button(search_frame, text="Buscar", command=self.realizar_busqueda_autor)
+        search_button.pack(side=tk.LEFT, padx=5)
+
+    def crear_area_resultado_autor(self):
+        self.resultados_frame = tk.Frame(self.master)
+        self.resultados_frame.pack(pady=10)
+
+        self.tree = ttk.Treeview(self.resultados_frame, columns=('ID', 'Nombre', 'Nacionalidad'), show='headings')
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Nombre', text='Nombre')
+        self.tree.heading('Nacionalidad', text='Nacionalidad')
+        self.tree.pack(fill=tk.BOTH, expand=True)
+
     def crear_area_categorias(self):
         categorias_frame = tk.Frame(self.master)
         categorias_frame.pack(pady=10)
@@ -174,27 +195,37 @@ class BibliotecaBibli:
         self.categorias_text = tk.Text(self.master, height=10, width=80)
         self.categorias_text.pack(pady=10)
 
-    '''def crear_area_libros(self):
-        Autores_frame = tk.Frame(self.master)
-        Autores_frame.pack(pady=10)
+    def mostrar_datos_prestamos(self):
+        resultados = prestamos.obtener_prestamos()
+        for row in self.tree.get_children():
+            self.tree.delete(row)
 
-        tk.Label(Autores_frame, text="Libros:").pack(side=tk.LEFT, padx=5)
+        for resultado in resultados:
+            self.tree.insert('', tk.END, values=resultado)
 
-        # Obtener las categorías desde la base de datos
-        categorias_list = [categoria[1] for categoria in Autores.obtener_autores()]
-        
-        # Crear el Combobox para las categorías
-        self.categorias_combobox = ttk.Combobox(Autores_frame, values=categorias_list, width=40)
-        self.categorias_combobox.pack(side=tk.LEFT, padx=5)
-        self.categorias_combobox.current(0)  # Seleccionar el primer elemento por defecto
+    def mostrar_datos_libros(self):
+        resultados = libros.obtener_libros()
+        for row in self.tree.get_children():
+            self.tree.delete(row)
 
-        # Botón para actualizar resultados al seleccionar una categoría
-        ver_button = ttk.Button(libros_frame, text="Ver", command=self.mostrar_categorias)
-        ver_button.pack(side=tk.LEFT, padx=5)
+        for resultado in resultados:
+            self.tree.insert('', tk.END, values=resultado)
 
-        # Crear el área de texto para mostrar las categorías
-        self.categorias_text = tk.Text(self.master, height=10, width=80)
-        self.categorias_text.pack(pady=10)'''
+    def mostrar_datos_autores(self):
+        resultados = Autores.obtener_autores()
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        for resultado in resultados:
+            self.tree.insert('', tk.END, values=resultado)
+
+    def mostrar_datos_categorias(self):
+        categorias_text = ''
+        for categoria in categorias.obtener_categorias():
+            categorias_text += f"ID: {categoria[0]}, Categoria: {categoria[1]}, Ubicacion: {categoria[2]}\n"
+
+        self.categorias_text.delete('1.0', tk.END)
+        self.categorias_text.insert(tk.END, categorias_text)
 
     def realizar_busqueda_libro(self):
         termino_busqueda = self.search_entry.get()
@@ -219,6 +250,19 @@ class BibliotecaBibli:
         for row in self.tree.get_children():
             self.tree.delete(row)
  
+        for resultado in resultados:
+            self.tree.insert('', tk.END, values=resultado)
+
+    def realizar_busqueda_autor(self):
+        termino_busqueda = self.search_entry.get()
+        if not termino_busqueda:
+            messagebox.showwarning("Advertencia", "Por favor, ingrese un término de búsqueda")
+            return
+
+        resultados = Autores.buscar_autores(termino_busqueda)
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
         for resultado in resultados:
             self.tree.insert('', tk.END, values=resultado)
 

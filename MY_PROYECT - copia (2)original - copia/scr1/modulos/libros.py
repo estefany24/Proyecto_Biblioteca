@@ -79,3 +79,21 @@ def buscar_libro(titulo):
     except sqlite3.Error as e:
         print(f"Error al buscar libros por título: {e}")
         return None
+    
+def obtener_libros():
+    try:
+        # Conexión a la base de datos
+        conn = sqlite3.connect('ABIBLIOTECA.db')
+        cursor = conn.cursor()
+
+        # Obtener las categorías
+        cursor.execute('SELECT idlibros, titulo, Autores, edicion, descripcion, categoria_idcategoria, año, nunpaginas FROM Libros')
+        categorias = cursor.fetchall()
+
+        # Cerrar la conexión
+        conn.close()
+
+        return categorias
+    except sqlite3.Error as e:
+        messagebox.showerror("Error", f"Error al obtener las categorías: {e}")
+        return []

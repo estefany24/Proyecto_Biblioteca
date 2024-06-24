@@ -42,3 +42,21 @@ def obtener_autores():
     except sqlite3.Error as e:
         messagebox.showerror("Error", f"Error al obtener los autores: {e}")
         return []
+
+def buscar_autores(titulo):
+    try:
+        conn = sqlite3.connect('ABIBLIOTECA.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''
+        SELECT * FROM Autores WHERE titulo LIKE ?
+        ''', ('%' + titulo + '%',))  # Utiliza % para buscar coincidencias parciales del título
+
+        libros_encontrados = cursor.fetchall()
+
+        conn.close()
+
+        return libros_encontrados
+    except sqlite3.Error as e:
+        print(f"Error al buscar el nombre del autor: {e}")
+        return None
