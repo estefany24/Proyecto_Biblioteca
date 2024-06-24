@@ -131,8 +131,6 @@ class BibliotecaApp:
                 messagebox.showerror("Error", "No se pudo agregar la categoría.")
         else:
             messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
-
-            
     def crear_text_area(self):
         # Crear el área de texto si aún no existe
         if not self.text_area:
