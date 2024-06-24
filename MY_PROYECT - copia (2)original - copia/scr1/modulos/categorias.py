@@ -89,3 +89,17 @@ def obtener_categorias():
     except sqlite3.Error as e:
         messagebox.showerror("Error", f"Error al obtener las categorías: {e}")
         return []
+    
+
+
+def obtener_categoria_por_id(id_categoria):
+    try:
+        conn = sqlite3.connect('ABIBLIOTECA.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT idcategoria, nombre_categoria, ubicacion FROM Categorias WHERE idcategoria = ?', (id_categoria,))
+        categoria = cursor.fetchone()
+        conn.close()
+        return categoria
+    except sqlite3.Error as e:
+        messagebox.showerror("Error", f"Error al obtener la categoría: {e}")
+        return None
